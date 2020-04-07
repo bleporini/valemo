@@ -1,0 +1,41 @@
+version: '3'
+
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:5.4.1
+    environment:
+      ZOOKEEPER_SERVER_ID: 1
+      ZOOKEEPER_CLIENT_PORT: "2181"
+      ZOOKEEPER_TICK_TIME: "2000"
+
+  kafka:
+    image: confluentinc/cp-kafka:5.4.1
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - 9093:9093
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "PLAINTEXT1:PLAINTEXT,PLAINTEXT2:PLAINTEXT"
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT1://localhost:9093,PLAINTEXT2://kafka:9092"
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT2
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+
+  mqtt:
+    image: confluentinc/cp-kafka-mqtt:5.4.1
+    ports:
+      - 1883:1883
+    environment:
+      KAFKA_MQTT_BOOTSTRAP_SERVERS: "PLAINTEXT://kafka:9092"
+      KAFKA_MQTT_CONFLUENT_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_MQTT_TOPIC_REGEX_LIST: temperature:.*temperature
+
+  mosquitto:
+    image: eclipse-mosquitto:1.6.9
+    command: tail -f /dev/null
+
+
