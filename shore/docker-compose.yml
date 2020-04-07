@@ -11,7 +11,7 @@ services:
   kafka-shore:
     image: confluentinc/cp-kafka:5.4.1
     depends_on:
-      - zookeeper
+      - zookeeper-shore
     environment:
       KAFKA_ZOOKEEPER_CONNECT: "zookeeper-shore:2181"
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "PLAINTEXT1:PLAINTEXT,PLAINTEXT2:PLAINTEXT"
@@ -37,8 +37,8 @@ services:
     ports:
       - "8083:8083"
     depends_on:
-      - zookeeper
-      - kafka
+      - zookeeper-shore
+      - kafka-shore
       - replicator-for-jar-transfer
     volumes:
       - mi3:/usr/share/java/kafka-connect-replicator/
@@ -136,13 +136,13 @@ services:
     image: confluentinc/cp-enterprise-control-center:5.4.1
     restart: always
     depends_on:
-      - zookeeper
-      - kafka
+      - zookeeper-shore
+      - kafka-shore
     ports:
       - "9021:9021"
     environment:
       CONTROL_CENTER_BOOTSTRAP_SERVERS: "kafka-shore:9094"
-      CONTROL_CENTER_ZOOKEEPER_CONNECT: "zookeeper:2181"
+      CONTROL_CENTER_ZOOKEEPER_CONNECT: "zookeeper-shore:2181"
       CONTROL_CENTER_REPLICATION_FACTOR: 1
       CONTROL_CENTER_MONITORING_INTERCEPTOR_TOPIC_REPLICATION: 1
       CONTROL_CENTER_INTERNAL_TOPICS_REPLICATION: 1
