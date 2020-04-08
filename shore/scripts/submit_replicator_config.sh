@@ -14,7 +14,7 @@ DATA=$( cat << EOF
       "src.value.converter": "org.apache.kafka.connect.storage.StringConverter",
       "src.kafka.bootstrap.servers": "${SHIP_BOOTSTRAP_SERVERS}",
       "dest.kafka.bootstrap.servers": "kafka-shore:9094",
-      "src.zookeeper.connect": "zookeeper:2181",
+      "src.zookeeper.connect": "${SHIP_ZK}",
       "dest.zookeeper.connect": "zookeeper-shore:2181"
   }
 }

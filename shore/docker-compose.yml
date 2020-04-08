@@ -49,6 +49,7 @@ services:
                        /etc/confluent/docker/run'"
     environment:
       SHIP_BOOTSTRAP_SERVERS: ${SHIP_BOOTSTRAP_SERVERS}
+      SHIP_ZK: ${SHIP_ZK}
       CONNECT_BOOTSTRAP_SERVERS: "kafka-shore:9094"
       CONNECT_REST_PORT: 8083
       CONNECT_LISTENERS: "http://0.0.0.0:8083"
