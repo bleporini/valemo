@@ -33,6 +33,7 @@ services:
 
   connect:
     image: confluentinc/cp-server-connect:5.4.1
+    container_name: connect
     restart: always
     ports:
       - "8083:8083"
@@ -42,10 +43,12 @@ services:
       - replicator-for-jar-transfer
     volumes:
       - mi3:/usr/share/java/kafka-connect-replicator/
+      - ../shore/scripts:/scripts
     command: "bash -c 'sleep 10 && \
                        cp /usr/share/java/kafka-connect-replicator/replicator-rest-extension-*.jar /etc/kafka-connect/jars/ && \
                        /etc/confluent/docker/run'"
     environment:
+      SHIP_BOOTSTRAP_SERVERS: ${SHIP_BOOTSTRAP_SERVERS}
       CONNECT_BOOTSTRAP_SERVERS: "kafka-shore:9094"
       CONNECT_REST_PORT: 8083
       CONNECT_LISTENERS: "http://0.0.0.0:8083"
@@ -62,73 +65,14 @@ services:
       CONNECT_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
       CONNECT_INTERNAL_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
       CONNECT_INTERNAL_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
-#      CONNECT_SSL_ENDPOINT_IDENTIFICATION_ALGORITHM: "HTTPS"
       CONNECT_REST_ADVERTISED_HOST_NAME: "connect"
       CONNECT_PLUGIN_PATH: "/usr/share/java,/connect-plugins"
       CONNECT_LOG4J_ROOT_LOGLEVEL: INFO
       CONNECT_LOG4J_LOGGERS: org.reflections=ERROR
       CLASSPATH: /usr/share/java/monitoring-interceptors/monitoring-interceptors-5.4.1.jar
       CONNECT_REST_EXTENSION_CLASSES: io.confluent.connect.replicator.monitoring.ReplicatorMonitoringExtension
-      # Connect worker
-#      CONNECT_SECURITY_PROTOCOL: SASL_SSL
-#      CONNECT_SASL_JAAS_CONFIG: "org.apache.kafka.common.security.plain.PlainLoginModule required \
-#        username=\"client\" \
-#        password=\"client-secret\";"
-#      CONNECT_SASL_MECHANISM: PLAIN
-#      CONNECT_SSL_TRUSTSTORE_LOCATION: /etc/kafka/secrets/kafka.connect.truststore.jks
-#      CONNECT_SSL_TRUSTSTORE_PASSWORD: confluent
-#      CONNECT_SSL_KEYSTORE_LOCATION: /etc/kafka/secrets/kafka.connect.keystore.jks
-#      CONNECT_SSL_KEYSTORE_PASSWORD: confluent
-#      # Connect producer
-#      CONNECT_PRODUCER_SECURITY_PROTOCOL: SASL_SSL
-#      CONNECT_PRODUCER_SASL_JAAS_CONFIG: "org.apache.kafka.common.security.plain.PlainLoginModule required \
-#        username=\"client\" \
-#        password=\"client-secret\";"
-#      CONNECT_PRODUCER_SASL_MECHANISM: PLAIN
-#      CONNECT_PRODUCER_SSL_TRUSTSTORE_LOCATION: /etc/kafka/secrets/kafka.connect.truststore.jks
-#      CONNECT_PRODUCER_SSL_TRUSTSTORE_PASSWORD: confluent
-#      CONNECT_PRODUCER_SSL_KEYSTORE_LOCATION: /etc/kafka/secrets/kafka.connect.keystore.jks
-#      CONNECT_PRODUCER_SSL_KEYSTORE_PASSWORD: confluent
-#      CONNECT_PRODUCER_SSL_KEY_PASSWORD: confluent
       CONNECT_PRODUCER_INTERCEPTOR_CLASSES: "io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor"
-#      CONNECT_PRODUCER_CONFLUENT_MONITORING_INTERCEPTOR_SECURITY_PROTOCOL: SASL_SSL
-#      CONNECT_PRODUCER_CONFLUENT_MONITORING_INTERCEPTOR_SASL_JAAS_CONFIG: "org.apache.kafka.common.security.plain.PlainLoginModule required \
-#        username=\"client\" \
-#        password=\"client-secret\";"
-#      CONNECT_PRODUCER_CONFLUENT_MONITORING_INTERCEPTOR_SASL_MECHANISM: PLAIN
-#      CONNECT_PRODUCER_CONFLUENT_MONITORING_INTERCEPTOR_SSL_TRUSTSTORE_LOCATION: /etc/kafka/secrets/kafka.connect.truststore.jks
-#      CONNECT_PRODUCER_CONFLUENT_MONITORING_INTERCEPTOR_SSL_TRUSTSTORE_PASSWORD: confluent
-#      CONNECT_PRODUCER_CONFLUENT_MONITORING_INTERCEPTOR_SSL_KEYSTORE_LOCATION: /etc/kafka/secrets/kafka.connect.keystore.jks
-#      CONNECT_PRODUCER_CONFLUENT_MONITORING_INTERCEPTOR_SSL_KEYSTORE_PASSWORD: confluent
-#      CONNECT_PRODUCER_CONFLUENT_MONITORING_INTERCEPTOR_SSL_KEY_PASSWORD: confluent
-#      # Connect consumer
-#      CONNECT_CONSUMER_SECURITY_PROTOCOL: SASL_SSL
-#      CONNECT_CONSUMER_SASL_JAAS_CONFIG: "org.apache.kafka.common.security.plain.PlainLoginModule required \
-#        username=\"client\" \
-#        password=\"client-secret\";"
-#      CONNECT_CONSUMER_SASL_MECHANISM: PLAIN
-#      CONNECT_CONSUMER_SSL_TRUSTSTORE_LOCATION: /etc/kafka/secrets/kafka.connect.truststore.jks
-#      CONNECT_CONSUMER_SSL_TRUSTSTORE_PASSWORD: confluent
-#      CONNECT_CONSUMER_SSL_KEYSTORE_LOCATION: /etc/kafka/secrets/kafka.connect.keystore.jks
-#      CONNECT_CONSUMER_SSL_KEYSTORE_PASSWORD: confluent
-#      CONNECT_CONSUMER_SSL_KEY_PASSWORD: confluent
       CONNECT_CONSUMER_INTERCEPTOR_CLASSES: "io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor"
-#      CONNECT_CONSUMER_CONFLUENT_MONITORING_INTERCEPTOR_SECURITY_PROTOCOL: SASL_SSL
-#      CONNECT_CONSUMER_CONFLUENT_MONITORING_INTERCEPTOR_SASL_JAAS_CONFIG: "org.apache.kafka.common.security.plain.PlainLoginModule required \
-#        username=\"client\" \
-#        password=\"client-secret\";"
-#      CONNECT_CONSUMER_CONFLUENT_MONITORING_INTERCEPTOR_SASL_MECHANISM: PLAIN
-#      CONNECT_CONSUMER_CONFLUENT_MONITORING_INTERCEPTOR_SSL_TRUSTSTORE_LOCATION: /etc/kafka/secrets/kafka.connect.truststore.jks
-#      CONNECT_CONSUMER_CONFLUENT_MONITORING_INTERCEPTOR_SSL_TRUSTSTORE_PASSWORD: confluent
-#      CONNECT_CONSUMER_CONFLUENT_MONITORING_INTERCEPTOR_SSL_KEYSTORE_LOCATION: /etc/kafka/secrets/kafka.connect.keystore.jks
-#      CONNECT_CONSUMER_CONFLUENT_MONITORING_INTERCEPTOR_SSL_KEYSTORE_PASSWORD: confluent
-#      CONNECT_CONSUMER_CONFLUENT_MONITORING_INTERCEPTOR_SSL_KEY_PASSWORD: confluent
-      # KAFKA_OPTS required for ReplicatorMonitoringExtension
-#      KAFKA_OPTS: -Djavax.net.ssl.trustStore=/etc/kafka/secrets/kafka.connect.truststore.jks
-#                  -Djavax.net.ssl.trustStorePassword=confluent
-#                  -Djavax.net.ssl.keyStore=/etc/kafka/secrets/kafka.connect.keystore.jks
-#                  -Djavax.net.ssl.keyStorePassword=confluent
-#      CONNECT_SSL_CIPHER_SUITES: "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256"
 
 
 
@@ -152,29 +96,12 @@ services:
       CONTROL_CENTER_INTERNAL_TOPICS_PARTITIONS: 1
       CONTROL_CENTER_METRICS_TOPIC_PARTITIONS: 1
       CONTROL_CENTER_STREAMS_NUM_STREAM_THREADS: 1
+      CONTROL_CENTER_KAFKA_SHIP_BOOTSTRAP_SERVERS: ${SHIP_BOOTSTRAP_SERVERS}
       # Amount of heap to use for internal caches. Increase for better thoughput
       CONTROL_CENTER_STREAMS_CACHE_MAX_BYTES_BUFFERING: 100000000
       CONTROL_CENTER_CONNECT_CLUSTER: "http://connect:8083"
-#      CONTROL_CENTER_KSQL_URL: "http://ksql-server:8088"
-#      CONTROL_CENTER_KSQL_ADVERTISED_URL: "http://localhost:8088"
-#      CONTROL_CENTER_SCHEMA_REGISTRY_URL: "https://schemaregistry:8085"
-#      CONTROL_CENTER_SCHEMA_REGISTRY_SCHEMA_REGISTRY_SSL_TRUSTSTORE_LOCATION: /etc/kafka/secrets/kafka.client.truststore.jks
-#      CONTROL_CENTER_SCHEMA_REGISTRY_SCHEMA_REGISTRY_SSL_TRUSTSTORE_PASSWORD: confluent
-#      CONTROL_CENTER_SCHEMA_REGISTRY_SCHEMA_REGISTRY_SSL_KEYSTORE_LOCATION: /etc/kafka/secrets/kafka.client.keystore.jks
-#      CONTROL_CENTER_SCHEMA_REGISTRY_SCHEMA_REGISTRY_SSL_KEYSTORE_PASSWORD: confluent
       CONTROL_CENTER_DEPRECATED_VIEWS_ENABLE: "true"
       CONTROL_CENTER_STREAMS_CONSUMER_REQUEST_TIMEOUT_MS: "960032"
-#      CONTROL_CENTER_STREAMS_SECURITY_PROTOCOL: SASL_SSL
-#      CONTROL_CENTER_STREAMS_SASL_JAAS_CONFIG: "org.apache.kafka.common.security.plain.PlainLoginModule required \
-#        username=\"client\" \
-#        password=\"client-secret\";"
-#      CONTROL_CENTER_STREAMS_SASL_MECHANISM: PLAIN
-#      CONTROL_CENTER_STREAMS_SSL_TRUSTSTORE_LOCATION: /etc/kafka/secrets/kafka.control-center.truststore.jks
-#      CONTROL_CENTER_STREAMS_SSL_TRUSTSTORE_PASSWORD: confluent
-#      CONTROL_CENTER_STREAMS_SSL_KEYSTORE_LOCATION: /etc/kafka/secrets/kafka.control-center.keystore.jks
-#      CONTROL_CENTER_STREAMS_SSL_KEYSTORE_PASSWORD: confluent
-#      CONTROL_CENTER_STREAMS_SSL_KEY_PASSWORD: confluent
-#      CONTROL_CENTER_STREAMS_SSL_ENDPOINT_IDENTIFICATION_ALGORITHM: "HTTPS"
       # HTTP and HTTPS to Control Center UI
       CONTROL_CENTER_REST_LISTENERS: "http://0.0.0.0:9021"
 
